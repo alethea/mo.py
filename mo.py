@@ -5,7 +5,24 @@ import shutil
 import argparse
 import mutagen
 
-def main()
+def process_name(name, mode, max_length=30):
+    if mode == 'none':
+        return unicode(name)
+    splitnames = name.split()
+    subnames = []
+    for splitname in splitnames:
+        subname = u''.join(char for char in splitname if char.isalnum())
+        if len(subname) > 0:
+            subnames.append(subname)
+    if mode == 'clean':
+        return u' '.join(subnames)
+    unix = u'-'.join(subname.lower() for subname in subnames)
+    if mode == 'short' or (mode == 'mixed' and len(unix) > max_length):
+        return u''.join(subname.lower()[0] for subname in subnames)
+    if mode == 'unix':
+        return unix
+
+def main():
     parser = argparse.ArgumentParser(
             description="Organize music files into directories.")
     parser.add_argument('sources', metavar='SOURCE', nargs="+",
