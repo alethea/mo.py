@@ -13,10 +13,12 @@ import mutagen
 
 def main():
     parser = argparse.ArgumentParser(prog='MO',
-            description='Organize music files into directories by tags.')
+            description='A simple utility to organize music files into \
+                    directories based on tags.')
     mode_group = parser.add_mutually_exclusive_group()
     parser.add_argument('-f', '--format', help='format string for new \
-            directory')
+            directory. Valid tags are {artist}, {album}, {title}, \
+            {track}, {disc}, {year} Ex:' + repr(default_formats['unix']))
     parser.add_argument('sources', metavar='SOURCE', nargs="+",
             help='files to examine')
     parser.add_argument('target', metavar='TARGET',
@@ -28,7 +30,7 @@ def main():
                     whitespace and uppercase characters')
     mode_group.add_argument('-s', '--shorten', dest='mode',
             action='store_const', const='short', help='shorten filenames to \
-                    lowercase initials')
+                    its lowercase initials')
     mode_group.add_argument('-m', '--mixed', dest='max_length', type=int,
             metavar='LENGTH', help='shorten filenames if longer than \
                     LENGTH, use UNIX names otherwise')
