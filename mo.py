@@ -66,7 +66,13 @@ def main():
         if not isinstance(metadata, mutagen.FileType):
             if metadata == None:
                 metadata = 'Could not extract tags'
-            parser.error('{0}: {1}'.format(metadata, source))
+            if args.overwrite == 'no':
+                parser.error('{0}: {1}'.format(metadata, source))
+            elif args.overwrite == 'ask':
+                print('{0}: {1}'.format(metadata, source))
+                if not ask('Continue?'):
+                    parser.exit()
+            continue
 
         tags = {
                 'artist': process_name(' '.join(metadata.get('artist', 
@@ -96,9 +102,7 @@ def main():
             elif args.overwrite == 'ask':
                 responce = None
                 print('File exists: {0}'.format(dest))
-                while responce != 'n' and responce != 'y':
-                    responce = raw_input('Overwrite it? [y/n] ')
-                if responce == 'n':
+                if not ask('Overwrite it?'):
                     continue
         if args.move:
             shutil.move(source, dest)
@@ -137,6 +141,14 @@ def process_number(number, length=None):
     if length != None and len(digits) != length:
         return 'Unknown'
     return int(''.join(digits))
+
+def ask(prompt):
+    while True:
+        responce = raw_input('{0} [y/n] '.format(prompt))
+        if responce.lower() == 'n':
+            return False
+        elif responce.lower() == 'y':
+            return True
 
 default_formats = {
         'none': os.path.join('{artist}', '{album}', '{track:02} {title}'),
