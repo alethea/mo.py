@@ -1,4 +1,10 @@
 #!/usr/bin/env python2.7
+"""
+MO
+
+A simple utility to organize music files into directories based on tags.
+Requires Python 2.7 and the Mutagen tagging library.
+"""
 
 import os
 import shutil
@@ -6,8 +12,8 @@ import argparse
 import mutagen
 
 def main():
-    parser = argparse.ArgumentParser(prog="MO",
-            description="Organize music files into directories.")
+    parser = argparse.ArgumentParser(prog='MO',
+            description='Organize music files into directories by tags.')
     mode_group = parser.add_mutually_exclusive_group()
     parser.add_argument('-f', '--format', help='format string for new \
             directory')
