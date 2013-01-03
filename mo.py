@@ -70,7 +70,7 @@ def main():
                 parser.error('{0}: {1}'.format(metadata, source))
             elif args.overwrite == 'ask':
                 print('{0}: {1}'.format(metadata, source))
-                if not ask('Continue?'):
+                if not ask('Skip it and continue?'):
                     parser.exit()
             continue
 
