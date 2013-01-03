@@ -15,25 +15,36 @@ def main():
     parser = argparse.ArgumentParser(prog='MO',
             description='A simple utility to organize music files into \
                     directories based on tags.')
-    mode_group = parser.add_mutually_exclusive_group()
-    parser.add_argument('-f', '--format', help='format string for new \
-            directory. Valid tags are {artist}, {album}, {title}, \
-            {track}, {disc}, {year} Ex:' + repr(default_formats['unix']))
+    parser.set_defaults(mode='unix', max_length=None, overwrite='no')
+
+    overwrite_group = parser.add_mutually_exclusive_group()
+    overwrite_group.add_argument('-f', '--force', dest='overwrite', 
+            action='store_const', const='yes', help='overwrite existing \
+                    files without prompting')
+    overwrite_group.add_argument('-i', '--interactive', dest='overwrite',
+            action='store_const', const='ask', help='ask before overwriting \
+                    files')
+
     parser.add_argument('sources', metavar='SOURCE', nargs="+",
             help='files to examine')
     parser.add_argument('target', metavar='TARGET',
             help='destination for new directory structure')
-    parser.set_defaults(mode='unix', max_length=None)
-    mode_group.add_argument('-c', '--clean', dest='mode',
+
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument('-u', '--upper', dest='mode',
             action='store_const', const='clean', help='strip \
                     non-alphanumeric characters from filenames, leave \
                     whitespace and uppercase characters')
     mode_group.add_argument('-s', '--shorten', dest='mode',
             action='store_const', const='short', help='shorten filenames to \
                     its lowercase initials')
-    mode_group.add_argument('-m', '--mixed', dest='max_length', type=int,
-            metavar='LENGTH', help='shorten filenames if longer than \
-                    LENGTH, use UNIX names otherwise')
+    mode_group.add_argument('-l', '--length', dest='max_length', type=int,
+            help='shorten filenames if longer than LENGTH, use UNIX names \
+                    otherwise')
+
+    parser.add_argument('-t', '--format', help='format string for new \
+            directory. Valid tags are {artist}, {album}, {title}, \
+            {track}, {disc}, {year} Ex:' + repr(default_formats['unix']))
 
     args = parser.parse_args()
     if args.max_length != None:
@@ -69,6 +80,16 @@ def main():
             os.makedirs(directory)
 
     for source, dest in filepairs.viewitems():
+        if os.path.exists(dest) and args.overwrite != 'yes':
+            if args.overwrite == 'no':
+                parser.error('File exists: {0}'.format(dest))
+            elif args.overwrite == 'ask':
+                responce = None
+                print('File exists: {0}'.format(dest))
+                while responce != 'n' and responce != 'y':
+                    responce = raw_input('Overwrite it? [y/n] ')
+                if responce == 'n':
+                    continue
         shutil.copy(source, dest)
 
 def process_name(name, args):
