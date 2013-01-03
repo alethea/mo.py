@@ -17,6 +17,9 @@ def main():
                     directories based on tags.')
     parser.set_defaults(mode='unix', max_length=None, overwrite='no')
 
+    parser.add_argument('-m', '--move', action='store_true',
+            help='move files instead of copying them')
+
     overwrite_group = parser.add_mutually_exclusive_group()
     overwrite_group.add_argument('-f', '--force', dest='overwrite', 
             action='store_const', const='yes', help='overwrite existing \
@@ -90,7 +93,10 @@ def main():
                     responce = raw_input('Overwrite it? [y/n] ')
                 if responce == 'n':
                     continue
-        shutil.copy(source, dest)
+        if args.move:
+            shutil.move(source, dest)
+        else:
+            shutil.copy(source, dest)
 
 def process_name(name, args):
     if args.mode == 'none':
