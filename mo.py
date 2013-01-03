@@ -48,9 +48,9 @@ def main():
                 'title': process_name(' '.join(metadata.get('title',
                     ['Unknown'])), args),
                 'track': process_number(metadata.get('tracknumber', [0])[0]),
-                'year': process_number(metadata.get('date', ['Unknown'])[0], 
-                    4),
-                'disc': process_number(metadata.get('discnumber', [0])[0])}
+                'disc': process_number(metadata.get('discnumber', [0])[0]),
+                'year': str(process_number(metadata.get('date',
+                    ['Unknown'])[0], 4))}
         ext = os.path.splitext(source)[1].lower()
         filename = args.format.format(**tags) + ext
         filepairs[source] = filename
