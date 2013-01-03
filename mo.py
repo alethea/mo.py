@@ -59,9 +59,15 @@ def main():
     filepairs = {}
 
     for source in args.sources:
-        metadata = mutagen.File(source, easy=True)
-        if metadata == None:
-            continue
+        try:
+            metadata = mutagen.File(source, easy=True)
+        except IOError as error:
+            metadata = error.strerror
+        if not isinstance(metadata, mutagen.FileType):
+            if metadata == None:
+                metadata = 'Could not extract tags'
+            parser.error('{0}: {1}'.format(metadata, source))
+
         tags = {
                 'artist': process_name(' '.join(metadata.get('artist', 
                     ['Unknown'])), args),
@@ -73,6 +79,7 @@ def main():
                 'disc': process_number(metadata.get('discnumber', [0])[0]),
                 'year': str(process_number(metadata.get('date',
                     ['Unknown'])[0], 4))}
+
         ext = os.path.splitext(source)[1].lower()
         filename = args.format.format(**tags) + ext
         filepairs[source] = filename
