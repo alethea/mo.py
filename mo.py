@@ -47,11 +47,13 @@ def main():
                     ['Unknown'])), args),
                 'title': process_name(' '.join(metadata.get('title',
                     ['Unknown'])), args),
-                'track': int(metadata.get('tracknumber', [0])[0])}
+                'track': process_number(metadata.get('tracknumber', [0])[0]),
+                'year': process_number(metadata.get('date', 'Unknown')[0], 4)}
         ext = os.path.splitext(source)[1].lower()
         filename = args.format.format(**tags) + ext
         filepairs[source] = filename
         directories.add(os.path.dirname(filename))
+        print(tags['year'])
         
     for directory in directories:
         if not os.path.exists(directory):
@@ -77,6 +79,22 @@ def process_name(name, args):
         return u''.join(subname.lower()[0] for subname in subnames)
     if args.mode == 'unix' or args.mode == 'mixed':
         return unix
+
+def process_number(number, length=None):
+    if number == None or number == 'Unknown':
+        return number
+    digits = []
+    found_digit = False
+    for char in number:
+        print(char)
+        if char.isdigit():
+            digits.append(char)
+            found_digit = True
+        elif found_digit:
+            break
+    if length != None and len(digits) != length:
+        return 'Unknown'
+    return int(''.join(digits))
 
 default_formats = {
         'none': os.path.join('{artist}', '{album}', '{track:02} {title}'),
