@@ -41,10 +41,14 @@ def main():
         if metadata == None:
             continue
         tags = {
-                'artist': process_name(' '.join(metadata['artist']), args),
-                'album': process_name(' '.join(metadata['album']), args),
-                'title': process_name(' '.join(metadata['title']), args),
-                'track': '{:02}'.format(int(metadata['tracknumber'][0]))}
+                'artist': process_name(' '.join(metadata.get('artist', 
+                    ['Unknown'])), args),
+                'album': process_name(' '.join(metadata.get('album',
+                    ['Unknown'])), args),
+                'title': process_name(' '.join(metadata.get('title',
+                    ['Unknown'])), args),
+                'track': '{:02}'.format(int(metadata.get('tracknumber',
+                    ['0'])[0]))}
         ext = os.path.splitext(source)[1].lower()
         filename = args.format.format(**tags) + ext
         filepairs[source] = filename
