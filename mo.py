@@ -15,7 +15,7 @@ def main():
     parser = argparse.ArgumentParser(prog='MO',
             description='A simple utility to organize music files into \
                     directories based on tags.')
-    parser.set_defaults(mode='unix', max_length=None, overwrite='no')
+    parser.set_defaults(mode='web', max_length=None, overwrite='no')
 
     parser.add_argument('-m', '--move', action='store_true',
             help='move files instead of copying them')
@@ -42,12 +42,12 @@ def main():
             action='store_const', const='short', help='shorten filenames to \
                     its lowercase initials')
     mode_group.add_argument('-l', '--length', dest='max_length', type=int,
-            help='shorten filenames if longer than LENGTH, use UNIX names \
+            help='shorten filenames if longer than LENGTH, use web names \
                     otherwise')
 
     parser.add_argument('-t', '--format', help='format string for new \
             directory. Valid tags are {artist}, {album}, {title}, \
-            {track}, {disc}, {year} Ex:' + repr(default_formats['unix']))
+            {track}, {disc}, {year} Ex:' + repr(default_formats['web']))
 
     args = parser.parse_args()
     if args.max_length != None:
@@ -109,12 +109,12 @@ def process_name(name, args):
             subnames.append(subname)
     if args.mode == 'clean':
         return u' '.join(subnames)
-    unix = u'-'.join(subname.lower() for subname in subnames)
+    web = u'-'.join(subname.lower() for subname in subnames)
     if args.mode == 'short' or (args.mode == 'mixed' and 
-            len(unix) > args.max_length):
+            len(web) > args.max_length):
         return u''.join(subname.lower()[0] for subname in subnames)
-    if args.mode == 'unix' or args.mode == 'mixed':
-        return unix
+    if args.mode == 'web' or args.mode == 'mixed':
+        return web
 
 def process_number(number, length=None):
     if number == None or number == 'Unknown' or isinstance(number, int):
@@ -136,7 +136,7 @@ default_formats = {
         'clean': os.path.join('{artist}', '{album}', '{track:02} {title}'),
         'short': os.path.join('{artist}', '{album}', '{track:02}{title}'),
         'mixed': os.path.join('{artist}', '{album}', '{track:02}-{title}'),
-        'unix': os.path.join('{artist}', '{album}', '{track:02}-{title}')}
+        'web': os.path.join('{artist}', '{album}', '{track:02}-{title}')}
 
 if __name__ == '__main__':
     main()
