@@ -47,8 +47,7 @@ def main():
                     ['Unknown'])), args),
                 'title': process_name(' '.join(metadata.get('title',
                     ['Unknown'])), args),
-                'track': '{:02}'.format(int(metadata.get('tracknumber',
-                    ['0'])[0]))}
+                'track': int(metadata.get('tracknumber', [0])[0])}
         ext = os.path.splitext(source)[1].lower()
         filename = args.format.format(**tags) + ext
         filepairs[source] = filename
@@ -80,11 +79,11 @@ def process_name(name, args):
         return unix
 
 default_formats = {
-        'none': os.path.join('{artist}', '{album}', '{track} {title}'),
-        'clean': os.path.join('{artist}', '{album}', '{track} {title}'),
-        'short': os.path.join('{artist}', '{album}', '{track}{title}'),
-        'mixed': os.path.join('{artist}', '{album}', '{track}-{title}'),
-        'unix': os.path.join('{artist}', '{album}', '{track}-{title}')}
+        'none': os.path.join('{artist}', '{album}', '{track:02} {title}'),
+        'clean': os.path.join('{artist}', '{album}', '{track:02} {title}'),
+        'short': os.path.join('{artist}', '{album}', '{track:02}{title}'),
+        'mixed': os.path.join('{artist}', '{album}', '{track:02}-{title}'),
+        'unix': os.path.join('{artist}', '{album}', '{track:02}-{title}')}
 
 if __name__ == '__main__':
     main()
