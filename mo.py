@@ -104,10 +104,19 @@ def main():
                 print('File exists: {0}'.format(dest))
                 if not ask('Overwrite it?'):
                     continue
-        if args.move:
-            shutil.move(source, dest)
-        else:
-            shutil.copy(source, dest)
+        try:
+            if args.move:
+                shutil.move(source, dest)
+            else:
+                shutil.copy(source, dest)
+        except IOError as error:
+            if args.overwrite == 'no':
+                parser.error('{0}: {1}'.format(error.strerror,
+                    error.filename))
+            elif args.overwrite == 'ask':
+                print('{0}: {1}'.format(error.strerror, error.filename))
+                if not ask('Skip it and continue?'):
+                    parser.exit()
 
 def process_name(name, args):
     if args.mode == 'none':
