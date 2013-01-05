@@ -87,9 +87,9 @@ def main():
                     ['Unknown'])[0], 4))}
 
         ext = os.path.splitext(source)[1].lower()
-        filename = args.format.format(**tags) + ext
-        filepairs[source] = filename
-        directories.add(os.path.dirname(filename))
+        dest = os.path.join(args.target, args.format.format(**tags) + ext)
+        filepairs[source] = dest
+        directories.add(os.path.dirname(dest))
         
     for directory in directories:
         if not os.path.exists(directory):
