@@ -15,10 +15,13 @@ def main():
     parser = argparse.ArgumentParser(prog='MO',
             description='A simple utility to organize music files into \
                     directories based on tags.')
-    parser.set_defaults(mode='web', max_length=None, overwrite='no')
+    parser.set_defaults(mode='web', max_length=None, overwrite='no', 
+            artist='albumartist')
 
     parser.add_argument('-m', '--move', action='store_true',
             help='move files instead of copying them')
+    parser.add_argument('-a', '--artist', action='store_const',
+            const='artist', help='prefer artist tag over album artist tag')
 
     overwrite_group = parser.add_mutually_exclusive_group()
     overwrite_group.add_argument('-f', '--force', dest='overwrite', 
@@ -75,8 +78,6 @@ def main():
             continue
 
         tags = {
-                'artist': process_name(' '.join(metadata.get('artist', 
-                    ['Unknown'])), args),
                 'album': process_name(' '.join(metadata.get('album',
                     ['Unknown'])), args),
                 'title': process_name(' '.join(metadata.get('title',
@@ -85,6 +86,12 @@ def main():
                 'disc': process_number(metadata.get('discnumber', [0])[0]),
                 'year': str(process_number(metadata.get('date',
                     ['Unknown'])[0], 4))}
+        if args.artist == 'albumartist':
+            tags['artist'] = process_name(' '.join(metadata.get('albumartist',
+                metadata.get('artist', ['Unknown']))), args)
+        else:
+            tags['artist'] = process_name(' '.join(metadata.get('artist',
+                metadata.get('albumartist', ['Unknown']))), args)
 
         ext = os.path.splitext(source)[1].lower()
         dest = os.path.join(args.target, args.format.format(**tags) + ext)
