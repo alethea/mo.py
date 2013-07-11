@@ -12,51 +12,64 @@ import shutil
 import argparse
 import mutagen
 
+
 def main():
-    parser = argparse.ArgumentParser(prog='MO',
-            description='A simple utility to organize music files into \
-                    directories based on tags.')
-    parser.set_defaults(mode='web', max_length=None, overwrite='no', 
-            artist='albumartist')
+    parser = argparse.ArgumentParser(
+        prog='MO',
+        description='A simple utility to organize music files into \
+            directories based on tags.')
+    parser.set_defaults(mode='web',
+                        max_length=None,
+                        overwrite='no',
+                        artist='albumartist')
 
     parser.add_argument('-m', '--move', action='store_true',
-            help='move files instead of copying them')
+                        help='move files instead of copying them')
     parser.add_argument('-a', '--artist', action='store_const',
-            const='artist', help='prefer artist tag over album artist tag')
+                        const='artist',
+                        help='prefer artist tag over album artist tag')
 
     overwrite_group = parser.add_mutually_exclusive_group()
-    overwrite_group.add_argument('-f', '--force', dest='overwrite', 
-            action='store_const', const='yes', help='overwrite existing \
-                    files without prompting')
-    overwrite_group.add_argument('-i', '--interactive', dest='overwrite',
-            action='store_const', const='ask', help='ask before overwriting \
-                    files')
+    overwrite_group.add_argument(
+        '-f', '--force', dest='overwrite',
+        action='store_const', const='yes',
+        help='overwrite existing files without prompting')
+    overwrite_group.add_argument(
+        '-i', '--interactive', dest='overwrite',
+        action='store_const', const='ask',
+        help='ask before overwriting files')
 
-    parser.add_argument('sources', metavar='SOURCE', nargs="+",
-            help='files to examine')
-    parser.add_argument('target', metavar='TARGET',
-            help='destination for new directory structure')
+    parser.add_argument(
+        'sources', metavar='SOURCE', nargs="+",
+        help='files to examine')
+    parser.add_argument(
+        'target', metavar='TARGET',
+        help='destination for new directory structure')
 
     mode_group = parser.add_mutually_exclusive_group()
-    mode_group.add_argument('-u', '--upper', dest='mode',
-            action='store_const', const='clean', help='strip \
-                    non-alphanumeric characters from filenames, leave \
-                    whitespace and uppercase characters')
-    mode_group.add_argument('-s', '--shorten', dest='mode',
-            action='store_const', const='short', help='shorten filenames to \
-                    its lowercase initials')
-    mode_group.add_argument('-l', '--length', dest='max_length', type=int,
-            help='shorten filenames if longer than LENGTH, use web names \
-                    otherwise')
+    mode_group.add_argument(
+        '-u', '--upper', dest='mode',
+        action='store_const', const='clean',
+        help='strip non-alphanumeric characters from filenames, leave \
+        whitespace and uppercase characters')
+    mode_group.add_argument(
+        '-s', '--shorten', dest='mode',
+        action='store_const', const='short',
+        help='shorten filename to its lowercase initials')
+    mode_group.add_argument(
+        '-l', '--length', dest='max_length', type=int,
+        help='shorten names if longer than LENGTH, use web names otherwise')
 
-    parser.add_argument('-t', '--format', help='format string for new \
-            directory. Valid tags are {artist}, {album}, {title}, \
-            {track}, {disc}, {year} Ex:' + repr(default_formats['web']))
+    parser.add_argument(
+        '-t', '--format',
+        help=('format string for new directory. Valid tags are {artist}, \
+              {album}, {title}, {track}, {disc}, {year} Ex:' +
+              repr(default_formats['web'])))
 
     args = parser.parse_args()
-    if args.max_length != None:
+    if args.max_length is not None:
         args.mode = 'mixed'
-    if args.format == None:
+    if args.format is None:
         args.format = default_formats[args.mode]
 
     directories = set()
@@ -68,7 +81,7 @@ def main():
         except IOError as error:
             metadata = error.strerror
         if not isinstance(metadata, mutagen.FileType):
-            if metadata == None:
+            if metadata is None:
                 metadata = 'Could not extract tags'
             if args.overwrite == 'no':
                 parser.error('{0}: {1}'.format(metadata, source))
@@ -79,26 +92,28 @@ def main():
             continue
 
         tags = {
-                'album': process_name(' '.join(metadata.get('album',
-                    ['Unknown'])), args),
-                'title': process_name(' '.join(metadata.get('title',
-                    ['Unknown'])), args),
-                'track': process_number(metadata.get('tracknumber', [0])[0]),
-                'disc': process_number(metadata.get('discnumber', [0])[0]),
-                'year': str(process_number(metadata.get('date',
-                    ['Unknown'])[0], 4))}
+            'album': process_name(' '.join(metadata.get('album',
+                                                        ['Unknown'])), args),
+            'title': process_name(' '.join(metadata.get('title',
+                                                        ['Unknown'])), args),
+            'track': process_number(metadata.get('tracknumber', [0])[0]),
+            'disc': process_number(metadata.get('discnumber', [0])[0]),
+            'year': str(process_number(metadata.get('date',
+                                                    ['Unknown'])[0], 4))}
         if args.artist == 'albumartist':
-            tags['artist'] = process_name(' '.join(metadata.get('albumartist',
-                metadata.get('artist', ['Unknown']))), args)
+            tags['artist'] = process_name(' '.join(
+                metadata.get('albumartist',
+                             metadata.get('artist', ['Unknown']))), args)
         else:
-            tags['artist'] = process_name(' '.join(metadata.get('artist',
-                metadata.get('albumartist', ['Unknown']))), args)
+            tags['artist'] = process_name(' '.join(
+                metadata.get('artist',
+                             metadata.get('albumartist', ['Unknown']))), args)
 
         ext = os.path.splitext(source)[1].lower()
         dest = os.path.join(args.target, args.format.format(**tags) + ext)
         filepairs[source] = dest
         directories.add(os.path.dirname(dest))
-        
+
     for directory in directories:
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -120,11 +135,12 @@ def main():
         except IOError as error:
             if args.overwrite == 'no':
                 parser.error('{0}: {1}'.format(error.strerror,
-                    error.filename))
+                                               error.filename))
             elif args.overwrite == 'ask':
                 print('{0}: {1}'.format(error.strerror, error.filename))
                 if not ask('Skip it and continue?'):
                     parser.exit()
+
 
 def process_name(name, args):
     if args.mode == 'none':
@@ -139,14 +155,15 @@ def process_name(name, args):
     if args.mode == 'clean':
         return u' '.join(subnames)
     web = u'-'.join(subname.lower() for subname in subnames)
-    if args.mode == 'short' or (args.mode == 'mixed' and 
-            len(web) > args.max_length):
+    if args.mode == 'short' or (args.mode == 'mixed' and
+                                len(web) > args.max_length):
         return u''.join(subname.lower()[0] for subname in subnames)
     if args.mode == 'web' or args.mode == 'mixed':
         return web
 
+
 def process_number(number, length=None):
-    if number == None or number == 'Unknown' or isinstance(number, int):
+    if number is None or number == 'Unknown' or isinstance(number, int):
         return number
     digits = []
     found_digit = False
@@ -156,9 +173,10 @@ def process_number(number, length=None):
             found_digit = True
         elif found_digit:
             break
-    if length != None and len(digits) != length:
+    if length is not None and len(digits) != length:
         return 'Unknown'
     return int(''.join(digits))
+
 
 def ask(prompt):
     while True:
@@ -168,13 +186,13 @@ def ask(prompt):
         elif responce.lower() == 'y':
             return True
 
+
 default_formats = {
-        'none': os.path.join('{artist}', '{album}', '{track:02} {title}'),
-        'clean': os.path.join('{artist}', '{album}', '{track:02} {title}'),
-        'short': os.path.join('{artist}', '{album}', '{track:02}{title}'),
-        'mixed': os.path.join('{artist}', '{album}', '{track:02}-{title}'),
-        'web': os.path.join('{artist}', '{album}', '{track:02}-{title}')}
+    'none': os.path.join('{artist}', '{album}', '{track:02} {title}'),
+    'clean': os.path.join('{artist}', '{album}', '{track:02} {title}'),
+    'short': os.path.join('{artist}', '{album}', '{track:02}{title}'),
+    'mixed': os.path.join('{artist}', '{album}', '{track:02}-{title}'),
+    'web': os.path.join('{artist}', '{album}', '{track:02}-{title}')}
 
 if __name__ == '__main__':
     main()
-
