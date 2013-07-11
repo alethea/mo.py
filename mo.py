@@ -7,6 +7,7 @@ Requires Python 2.7 and the Mutagen tagging library.
 """
 
 import os
+import unicodedata
 import shutil
 import argparse
 import mutagen
@@ -131,7 +132,8 @@ def process_name(name, args):
     splitnames = name.split()
     subnames = []
     for splitname in splitnames:
-        subname = u''.join(char for char in splitname if char.isalnum())
+        normname = unicodedata.normalize('NFKD', splitname)
+        subname = u''.join(char for char in normname if char.isalnum())
         if len(subname) > 0:
             subnames.append(subname)
     if args.mode == 'clean':
