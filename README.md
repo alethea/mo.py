@@ -1,5 +1,5 @@
-MO
-==
+mo.py
+====
 
-A simple utility to organize music files into directories based on tags.
+A simple and sensible script for organizing audio files.
 Requires Python 2.7 and the Mutagen tagging library.
